@@ -1,0 +1,1102 @@
+{
+  "name": "OratóriaLendária",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {
+          "download": true
+        }
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -704,
+        496
+      ],
+      "id": "765be49e-3d43-413e-a5c3-7cb61a0cde04",
+      "name": "message_event",
+      "webhookId": "6bf048c6-46e3-4079-b095-880870b6abec",
+      "credentials": {
+        "telegramApi": {
+          "id": "0kAebrVR25pJpU3r",
+          "name": "PORTA_VOZ_BOT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {
+          "language": "pt"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        528,
+        64
+      ],
+      "id": "79b878f3-f430-4df7-9a79-a2dc05b2fba6",
+      "name": "transcriber",
+      "credentials": {
+        "openAiApi": {
+          "id": "dwLXYcXm0LeCxyA4",
+          "name": "GPT- Arthur"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "options": {
+          "systemMessage": "<system_prompt>\n  <role>Especialista em comunicação e didática de IA</role>\n  \n  <context>\n    Você analisará transcrições de palestras sobre IA para fornecer feedback construtivo ao palestrante.\n  </context>\n\n  <constraints>\n    <constraint>Respostas concisas mas substanciais (limite de caracteres do Telegram: ~4096)</constraint>\n    <constraint>Foco em melhorias práticas e aplicáveis</constraint>\n    <constraint>Linguagem adaptada para jovens aprendizes/iniciantes</constraint>\n  </constraints>\n\n  <task_instructions>\n    <instruction priority=\"1\">\n      <title>Análise da Abordagem Atual</title>\n      <details>\n        - Identifique trechos vagos, confusos ou excessivamente técnicos\n        - Aponte desconexões com o público-alvo\n        - Destaque momentos onde a clareza foi comprometida\n      </details>\n    </instruction>\n    \n    <instruction priority=\"2\">\n      <title>Sugestões de Melhoria</title>\n      <details>\n        - Proponha reformulações mais didáticas\n        - Sugira ajustes no estilo de comunicação\n        - Recomende estruturas narrativas mais fluidas\n      </details>\n    </instruction>\n    \n    <instruction priority=\"3\">\n      <title>Ideias Criativas</title>\n      <details>\n        - Crie analogias do cotidiano para conceitos complexos\n        - Sugira demonstrações práticas e visuais\n        - Proponha elementos interativos ou dinâmicas rápidas\n      </details>\n    </instruction>\n  </task_instructions>\n\n  <output_format>\n    <section>1. ANÁLISE DA ABORDAGEM ATUAL</section>\n    <section>2. SUGESTÕES DE MELHORIA</section>\n    <section>3. IDEIAS CRIATIVAS PARA REFORÇAR CONCEITOS</section>\n  </output_format>\n\n  <critical_notes>\n    <note>Distinguir vozes diferentes na transcrição (palestrante vs. participantes)</note>\n    <note>Utilizar memória para rastrear melhorias entre sessões</note>\n    <note>Respeitar session_id para não misturar contextos de usuários diferentes</note>\n  </critical_notes>\n</system_prompt>"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        784,
+        64
+      ],
+      "id": "175a18d0-f7ca-4393-9584-bee48ebd2bc3",
+      "name": "Porta-Voz Agent"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        192,
+        272
+      ],
+      "id": "480beb20-1757-4f02-b5bb-98f2ae74c35a",
+      "name": "download_voice",
+      "webhookId": "862ff7e3-b7ea-4c2d-91a4-96498a45dc34",
+      "credentials": {
+        "telegramApi": {
+          "id": "0kAebrVR25pJpU3r",
+          "name": "PORTA_VOZ_BOT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.audio.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        192,
+        48
+      ],
+      "id": "028785ce-3e36-4392-9dd1-ff2d1fdc3939",
+      "name": "download_audio",
+      "webhookId": "862ff7e3-b7ea-4c2d-91a4-96498a45dc34",
+      "credentials": {
+        "telegramApi": {
+          "id": "0kAebrVR25pJpU3r",
+          "name": "PORTA_VOZ_BOT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# Downloader\n",
+        "height": 476,
+        "width": 236,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        128,
+        -48
+      ],
+      "typeVersion": 1,
+      "id": "936e00f1-9f54-4b09-9dd5-e5ab3260a536",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "# Audio Agent",
+        "height": 604,
+        "width": 1252,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        112,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "4520f0f9-f400-4095-88ff-129033d9b2b4",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.text.toLowerCase() }}",
+                    "rightValue": "dicas",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "985905e7-446f-4dd0-8625-e01ac1b3495e"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "dicas"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "dbcb3672-d10f-4603-b440-90283f568582",
+                    "leftValue": "={{ $json.message.text.toLowerCase() }}",
+                    "rightValue": "ideias",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "ideias"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "3732d694-be1e-4776-9355-b29e32fdcfae",
+                    "leftValue": "={{ $json.message.text.toLowerCase() }}",
+                    "rightValue": "nova apresentação",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "apresentacao"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        192,
+        960
+      ],
+      "id": "171def6c-06f2-4053-9c73-4774b73080ad",
+      "name": "Switch",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "chat_histories",
+          "mode": "list",
+          "cachedResultName": "chat_histories"
+        },
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "session_id",
+              "value": "={{ $json.message.chat.id.toString() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        976,
+        816
+      ],
+      "id": "dd0adb78-50ac-4bd7-a428-377ad61b8568",
+      "name": "Chats",
+      "credentials": {
+        "postgres": {
+          "id": "6e2RhE4CUWcE8qpi",
+          "name": "PortaVozMemory"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# Text Agent\n",
+        "height": 1264,
+        "width": 1364,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        112,
+        464
+      ],
+      "typeVersion": 1,
+      "id": "09213297-1038-49ca-82b6-87ec76bd2807",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "chat_histories",
+          "mode": "list",
+          "cachedResultName": "chat_histories"
+        },
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "session_id",
+              "value": "={{ $json.message.chat.id.toString() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        992,
+        1168
+      ],
+      "id": "e0d90f9c-087d-495f-bfee-88bdf3e9e419",
+      "name": "Chats1",
+      "credentials": {
+        "postgres": {
+          "id": "6e2RhE4CUWcE8qpi",
+          "name": "PortaVozMemory"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "<system_prompt>\n  <role>Consultor sênior especializado em desenvolvimento de palestrantes</role>\n  \n  <primary_objective>\n    Sintetizar insights do histórico completo de análises para fornecer orientações estratégicas avançadas.\n  </primary_objective>\n\n  <data_source>\n    <source>PostgreSQL - Tabela 'Chats'</source>\n    <content>Histórico completo de análises de áudios de palestras</content>\n    <analysis_depth>Identificar padrões, evolução e oportunidades de melhoria sistêmica</analysis_depth>\n  </data_source>\n\n  <analysis_framework>\n    <dimension>Progressão temporal - evolução do palestrante</dimension>\n    <dimension>Padrões recorrentes - pontos fortes e fracos consistentes</dimension>\n    <dimension>Gaps de desenvolvimento - áreas não trabalhadas</dimension>\n    <dimension>Sucessos comprovados - técnicas que funcionaram</dimension>\n  </analysis_framework>\n\n  <deliverable_structure>\n    <section priority=\"1\">\n      <title>INSIGHTS ESTRATÉGICOS</title>\n      <content>Padrões macro identificados no histórico</content>\n    </section>\n    \n    <section priority=\"2\">\n      <title>RECOMENDAÇÕES PRIORITÁRIAS</title>\n      <content>3-5 ações de alto impacto baseadas em evidências</content>\n    </section>\n    \n    <section priority=\"3\">\n      <title>ROADMAP DE DESENVOLVIMENTO</title>\n      <content>Sequência otimizada de melhorias</content>\n    </section>\n    \n    <section priority=\"4\">\n      <title>MÉTRICAS DE ACOMPANHAMENTO</title>\n      <content>Indicadores para medir progresso</content>\n    </section>\n  </deliverable_structure>\n\n  <quality_parameters>\n    <parameter>Especificidade - dicas acionáveis, não genéricas</parameter>\n    <parameter>Contextualização - baseadas em evidências do histórico</parameter>\n    <parameter>Progressividade - considerar jornada de evolução</parameter>\n    <parameter>Mensurabilidade - permitir acompanhamento de progresso</parameter>\n  </quality_parameters>\n\n  <constraints>\n    <constraint type=\"critical\">Limite de caracteres do Telegram (~4096)</constraint>\n    <constraint type=\"high\">Foco em valor agregado vs. volume</constraint>\n    <constraint type=\"medium\">Linguagem direta e executiva</constraint>\n  </constraints>\n\n  <differentiation>\n    <aspect>Visão holística vs. análises pontuais</aspect>\n    <aspect>Orientação estratégica vs. correções táticas</aspect>\n    <aspect>Desenvolvimento contínuo vs. ajustes isolados</aspect>\n  </differentiation>\n</system_prompt>",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        800,
+        608
+      ],
+      "id": "6c7c162d-9d50-4c40-bdb4-a2af3d809fc8",
+      "name": "Tips Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "<system_prompt>\n  <role>Consultor especialista em inovação para palestras</role>\n  \n  <context>\n    Você analisará conversas armazenadas no PostgreSQL (tabela 'Chats1') entre outros agentes e o palestrante para gerar ideias inovadoras.\n  </context>\n\n  <primary_objective>\n    Gerar exclusivamente IDEIAS NOVAS e INOVADORAS para enriquecer palestras sobre IA.\n  </primary_objective>\n\n  <constraints>\n    <constraint priority=\"critical\">Limite de caracteres do Telegram (~4096)</constraint>\n    <constraint priority=\"high\">Apenas ideias NOVAS - não repetir sugestões da memória</constraint>\n    <constraint priority=\"high\">Sem correções ou críticas - foco em adições criativas</constraint>\n  </constraints>\n\n  <data_source>\n    <source>PostgreSQL - Tabela 'Chats1'</source>\n    <analysis_focus>Identificar lacunas e oportunidades para inovação</analysis_focus>\n  </data_source>\n\n  <deliverables>\n    <deliverable type=\"examples\">Novos exemplos práticos e analogias</deliverable>\n    <deliverable type=\"slides\">Conceitos visuais e layouts inovadores</deliverable>\n    <deliverable type=\"features\">Funcionalidades interativas inéditas</deliverable>\n    <deliverable type=\"explanations\">Abordagens explicativas originais</deliverable>\n  </deliverables>\n\n  <output_guidelines>\n    <guideline>Priorizar criatividade e originalidade</guideline>\n    <guideline>Formato conciso com bullets ou numeração</guideline>\n    <guideline>Ideias prontas para implementação imediata</guideline>\n  </output_guidelines>\n\n  <memory_management>\n    <rule>Verificar memória antes de sugerir para evitar duplicatas</rule>\n    <rule>Registrar novas ideias geradas para futuras consultas</rule>\n  </memory_management>\n</system_prompt>",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        800,
+        1008
+      ],
+      "id": "954a139d-802a-4fe6-8596-d417a8737bb9",
+      "name": "Ideas Agent"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('message_event').item.json.message.from.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1232,
+        608
+      ],
+      "id": "0db7fcc0-3384-4f71-b6ad-1b6207cda533",
+      "name": "tip_message",
+      "webhookId": "be26adce-f6a8-4acc-b225-453b933ccc50",
+      "credentials": {
+        "telegramApi": {
+          "id": "0kAebrVR25pJpU3r",
+          "name": "PORTA_VOZ_BOT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "chat_histories",
+          "mode": "list",
+          "cachedResultName": "chat_histories"
+        },
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "session_id",
+              "value": "={{ $json.message.chat.id.toString() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        1040,
+        1568
+      ],
+      "id": "2cb44620-410b-479e-8548-852426a226b0",
+      "name": "Chats2",
+      "credentials": {
+        "postgres": {
+          "id": "6e2RhE4CUWcE8qpi",
+          "name": "PortaVozMemory"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('message_event').item.json.message.from.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1232,
+        1008
+      ],
+      "id": "ed90fd14-529b-4ddb-a8a0-2c2fa7a4d458",
+      "name": "idea_message",
+      "webhookId": "be26adce-f6a8-4acc-b225-453b933ccc50",
+      "credentials": {
+        "telegramApi": {
+          "id": "0kAebrVR25pJpU3r",
+          "name": "PORTA_VOZ_BOT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('message_event').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1152,
+        64
+      ],
+      "id": "e8d8c900-b797-468e-98b4-228793d85626",
+      "name": "send_feedback",
+      "webhookId": "2bb4ed99-35e4-4bed-92c7-0a8f65482f46",
+      "credentials": {
+        "telegramApi": {
+          "id": "0kAebrVR25pJpU3r",
+          "name": "PORTA_VOZ_BOT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.chat.id }}",
+        "text": "Por favor, envie uma mensagem de texto ou áudio pelo telegram para que eu possa ajudá-lo!",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -272,
+        864
+      ],
+      "id": "6bd4408b-5d2b-46f5-94bd-7bfb43a68aeb",
+      "name": "not_text_or_audio",
+      "webhookId": "be26adce-f6a8-4acc-b225-453b933ccc50",
+      "credentials": {
+        "telegramApi": {
+          "id": "0kAebrVR25pJpU3r",
+          "name": "PORTA_VOZ_BOT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.chat.id }}",
+        "text": "=Por favor, digite um dos comandos válidos: \"dicas\", \"ideias\", \"nova apresentação\"\n\nOu envie um áudio de palestra para análise.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        400,
+        1392
+      ],
+      "id": "dc90f76a-78f1-461d-90d0-5a0f89c9ae3a",
+      "name": "commands_instruction",
+      "webhookId": "be26adce-f6a8-4acc-b225-453b933ccc50",
+      "credentials": {
+        "telegramApi": {
+          "id": "0kAebrVR25pJpU3r",
+          "name": "PORTA_VOZ_BOT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "<system_prompt>\n  <role>Especialista em design e geração de apresentações inovadoras</role>\n  \n  <primary_objective>\n    Criar apresentações/palestras únicas baseadas em análise de padrões de interesse e lacunas temáticas.\n  </primary_objective>\n\n  <data_analysis>\n    <source>PostgreSQL - Tabela 'Chats2'</source>\n    <focus>\n      - Identificar temas recorrentes e interesses do usuário\n      - Mapear nichos inexplorados\n      - Detectar oportunidades de conexões temáticas\n    </focus>\n  </data_analysis>\n\n  <creation_guidelines>\n    <guideline priority=\"1\">Originalidade - evitar repetição excessiva de tópicos</guideline>\n    <guideline priority=\"2\">Diversidade - expandir o portfólio de palestras</guideline>\n    <guideline priority=\"3\">Relevância - alinhar com interesses identificados</guideline>\n  </creation_guidelines>\n\n  <memory_check>\n    <instruction>Consultar memória/contexto antes de gerar</instruction>\n    <purpose>Garantir variedade no portfólio de apresentações</purpose>\n  </memory_check>\n\n  <output_structure>\n    <section name=\"tema\">\n      <field>Tema Geral: [conceito amplo]</field>\n      <field>Tema Específico: [foco detalhado]</field>\n    </section>\n    \n    <section name=\"topicos\">\n      <format>\n        1. [Tópico]: [resumo de 1-2 linhas]\n        2. [Tópico]: [resumo de 1-2 linhas]\n        3. [Tópico]: [resumo de 1-2 linhas]\n        4. [Tópico]: [resumo de 1-2 linhas]\n      </format>\n    </section>\n    \n    <section name=\"abordagem\">\n      <field>Abordagem: [metodologia e estilo da apresentação]</field>\n    </section>\n    \n    <section name=\"publico\">\n      <field>Público-alvo: [perfil detalhado da audiência]</field>\n    </section>\n  </output_structure>\n\n  <constraints>\n    <constraint>Limite de caracteres do Telegram (~4096)</constraint>\n    <constraint>Mínimo 4 tópicos por apresentação</constraint>\n    <constraint>Linguagem acessível mas profissional</constraint>\n  </constraints>\n\n  <quality_criteria>\n    <criterion>Aplicabilidade prática</criterion>\n    <criterion>Potencial de engajamento</criterion>\n    <criterion>Diferenciação de conteúdos anteriores</criterion>\n  </quality_criteria>\n</system_prompt>",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        800,
+        1376
+      ],
+      "id": "6d2a4d14-c869-439d-b923-d206109a4d38",
+      "name": "Presentation Agent"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('message_event').item.json.message.from.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1152,
+        1376
+      ],
+      "id": "3f4d06c2-baf9-40b1-96a3-f5f48dfb8910",
+      "name": "presentation_message",
+      "webhookId": "be26adce-f6a8-4acc-b225-453b933ccc50",
+      "credentials": {
+        "telegramApi": {
+          "id": "0kAebrVR25pJpU3r",
+          "name": "PORTA_VOZ_BOT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('message_event').item.json.message.from.id }}",
+        "tableName": "presentations_chat_histories",
+        "contextWindowLength": 100
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        880,
+        1568
+      ],
+      "id": "5606b035-0f18-49b2-9ddd-2c35e74ce13a",
+      "name": "PresentationMemory",
+      "credentials": {
+        "postgres": {
+          "id": "6e2RhE4CUWcE8qpi",
+          "name": "PortaVozMemory"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('message_event').item.json.message.from.id }}",
+        "tableName": "tips_chat_histories",
+        "contextWindowLength": 100
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        880,
+        1184
+      ],
+      "id": "1cd5ec99-83ad-4e2a-ae3f-958313a7c314",
+      "name": "IdeasMemory",
+      "credentials": {
+        "postgres": {
+          "id": "6e2RhE4CUWcE8qpi",
+          "name": "PortaVozMemory"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        736,
+        1168
+      ],
+      "id": "d312cf72-f77f-4566-a992-4f01dbe447fd",
+      "name": "IdeasModel",
+      "credentials": {
+        "openAiApi": {
+          "id": "dwLXYcXm0LeCxyA4",
+          "name": "GPT- Arthur"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        704,
+        1568
+      ],
+      "id": "3c265d2f-e99f-4be3-9d4b-c3e5f2703e1e",
+      "name": "PresentationModel",
+      "credentials": {
+        "openAiApi": {
+          "id": "dwLXYcXm0LeCxyA4",
+          "name": "GPT- Arthur"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        768,
+        816
+      ],
+      "id": "e8732120-ecda-4c5f-aa09-b1ae8324e4ef",
+      "name": "TipsModel",
+      "credentials": {
+        "openAiApi": {
+          "id": "dwLXYcXm0LeCxyA4",
+          "name": "GPT- Arthur"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        704,
+        272
+      ],
+      "id": "6aaecdac-17f3-4223-b889-57986a194475",
+      "name": "Porta-VozModel",
+      "credentials": {
+        "openAiApi": {
+          "id": "RhriQWUOZC9CyZBv",
+          "name": "OpenAi Luisa"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('message_event').item.json.message.from.id }}",
+        "tableName": "chat_histories",
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        880,
+        272
+      ],
+      "id": "97d72375-5dc8-4aaa-a47a-3dc971796443",
+      "name": "Porta-VozMemory",
+      "credentials": {
+        "postgres": {
+          "id": "6e2RhE4CUWcE8qpi",
+          "name": "PortaVozMemory"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.audio }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "id": "981fa1ce-cf20-490a-94f4-f1488141274a"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio_message"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "7d262ca6-40cd-4b56-a980-1513c01e8f27",
+                    "leftValue": "={{ $json.message.voice }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "voice_message"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "310c66bb-d796-4d31-a4d3-7a80e9164816",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text_message"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "not_supported"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -464,
+        464
+      ],
+      "id": "a4e8f018-785b-4b41-a9fd-d1cd331edb29",
+      "name": "SwitchContent"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "message_event": {
+      "main": [
+        [
+          {
+            "node": "SwitchContent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "transcriber": {
+      "main": [
+        [
+          {
+            "node": "Porta-Voz Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Porta-Voz Agent": {
+      "main": [
+        [
+          {
+            "node": "send_feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "download_voice": {
+      "main": [
+        [
+          {
+            "node": "transcriber",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "download_audio": {
+      "main": [
+        [
+          {
+            "node": "transcriber",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Tips Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ideas Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Presentation Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "commands_instruction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chats": {
+      "ai_tool": [
+        [
+          {
+            "node": "Tips Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chats1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Ideas Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tips Agent": {
+      "main": [
+        [
+          {
+            "node": "tip_message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chats2": {
+      "ai_tool": [
+        [
+          {
+            "node": "Presentation Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ideas Agent": {
+      "main": [
+        [
+          {
+            "node": "idea_message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Presentation Agent": {
+      "main": [
+        [
+          {
+            "node": "presentation_message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PresentationMemory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Presentation Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IdeasMemory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Ideas Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IdeasModel": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Ideas Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PresentationModel": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Presentation Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TipsModel": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Tips Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Porta-VozModel": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Porta-Voz Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Porta-VozMemory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Porta-Voz Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SwitchContent": {
+      "main": [
+        [
+          {
+            "node": "download_audio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "download_voice",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "not_text_or_audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0b769cdb-680c-4735-8644-82773b2095f5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9aab45911b97299333480ee93b3a756a301732a8d3c5c2882e1becb4b9fe223a"
+  },
+  "id": "xXqmcuvVY9owg7wU",
+  "tags": []
+}
